@@ -2,9 +2,7 @@
 pragma solidity ^0.5.17;
 
 interface ICurveFi {
-  function add_liquidity(uint256[2] calldata, uint256) external;
+    function add_liquidity(uint256[2] calldata, uint256) external;
 
-  function calc_token_amount(uint256[2] calldata, bool)
-    external
-    returns (uint256);
+    function calc_token_amount(uint256[2] calldata, bool) external returns (uint256);
 }
