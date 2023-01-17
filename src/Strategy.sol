@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.5.17;
-
-pragma solidity ^0.5.17;
-//pragma experimental ABIEncoderV2;
+pragma experimental ABIEncoderV2;
 
 // forge install OpenZeppelin/openzeppelin-contracts@v2.5.1
 import 'openzeppelin/contracts/token/ERC20/IERC20.sol';
@@ -10,105 +8,13 @@ import 'openzeppelin/contracts/math/SafeMath.sol';
 import 'openzeppelin/contracts/utils/Address.sol';
 import 'openzeppelin/contracts/token/ERC20/SafeERC20.sol';
 
-interface IBooster {
-  function depositAll(uint256 _pid, bool _stake) external returns (bool);
-}
-
-interface IBaseRewardPool {
-  function withdrawAndUnwrap(uint256 amount, bool claim)
-    external
-    returns (bool);
-
-  function withdrawAllAndUnwrap(bool claim) external;
-
-  function getReward(address _account, bool _claimExtras)
-    external
-    returns (bool);
-
-  function balanceOf(address) external view returns (uint256);
-}
-
-interface IController {
-  function withdraw(address, uint256) external;
-
-  function balanceOf(address) external view returns (uint256);
-
-  function earn(address, uint256) external;
-
-  function want(address) external view returns (address);
-
-  function rewards() external view returns (address);
-
-  function vaults(address) external view returns (address);
-
-  function strategies(address) external view returns (address);
-}
-
-interface IVoterProxy {
-  function withdraw(
-    address _gauge,
-    address _token,
-    uint256 _amount
-  ) external returns (uint256);
-
-  function balanceOf(address _gauge) external view returns (uint256);
-
-  function withdrawAll(address _gauge, address _token)
-    external
-    returns (uint256);
-
-  function deposit(address _gauge, address _token) external;
-
-  function harvest(address _gauge, bool _snxRewards) external;
-
-  function lock() external;
-}
-
-interface Sushi {
-  function swapExactTokensForTokens(
-    uint256,
-    uint256,
-    address[] calldata,
-    address,
-    uint256
-  ) external;
-
-  function getAmountsOut(uint256, address[] calldata)
-    external
-    returns (uint256[] memory);
-}
-
-interface ICurveFi {
-  function add_liquidity(uint256[2] calldata, uint256) external;
-
-  function calc_token_amount(uint256[2] calldata, bool)
-    external
-    returns (uint256);
-}
-
-interface ISwapRouter {
-  function uniswapV3SwapCallback(
-    int256 amount0Delta,
-    int256 amount1Delta,
-    bytes calldata data
-  ) external;
-
-  struct ExactInputParams {
-    bytes path;
-    address recipient;
-    uint256 deadline;
-    uint256 amountIn;
-    uint256 amountOutMinimum;
-  }
-
-  function exactInput(ExactInputParams calldata params)
-    external
-    returns (uint256 amountOut);
-
-  function quoteExactInput(bytes calldata path, uint256 amountIn)
-    external
-    returns (uint256 amountOut);
-}
+import 'src/interfaces/IBooster.sol';
+import 'src/interfaces/IBaseRewardPool.sol';
+import 'src/interfaces/IController.sol';
+import 'src/interfaces/IVoterProxy.sol';
+import 'src/interfaces/Sushi.sol';
+import 'src/interfaces/ICurveFi.sol';
+import 'src/interfaces/ISwapRouter.sol';
 
 contract StrategyEursConvex {
   using SafeERC20 for IERC20;
