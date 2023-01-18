@@ -124,8 +124,6 @@ contract StrategyEursConvex {
     // Controller only function for creating additional rewards from dust
     function withdraw(IERC20 _asset) external onlyController returns (uint256 balance) {
         require(want != address(_asset), "want");
-        require(cvx != address(_asset), "cvx");
-        require(crv != address(_asset), "crv");
         balance = _asset.balanceOf(address(this));
         _asset.safeTransfer(controller, balance);
     }
