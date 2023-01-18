@@ -27,7 +27,6 @@ contract StrategyTest is Test {
     IController controller = IController(CONTROLLER);
     IBaseRewardPool baseRewardPool = IBaseRewardPool(BASE_REWARD_POOL);
 
-
     StrategyEursConvex strategy;
 
     function setUp() public {
@@ -38,7 +37,7 @@ contract StrategyTest is Test {
     }
 
     /// @notice Test to replace the old strategy on the controller by the new one
-    /// @notice and migrate all the eurs LP from the old strategy to the new one 
+    /// @notice and migrate all the eurs LP from the old strategy to the new one
     /// @notice using the vault.
     function testSwitchStrategy() public {
         uint256 balanceBefore = baseRewardPool.balanceOf(OLD_STRATEGY);
@@ -77,12 +76,12 @@ contract StrategyTest is Test {
         uint256 balanceBefore = baseRewardPool.balanceOf(address(strategy));
         (uint256 quoteFromCRV, bytes memory swapDataCRV) = getQuote(CRV, EURS, 1_000 ether, address(strategy));
         (uint256 quoteFromCVX, bytes memory swapDataCVX) = getQuote(CVX, EURS, 100 ether, address(strategy));
-        uint256 adjustedQuote = (quoteFromCRV+quoteFromCVX)*999/1000;
+        uint256 adjustedQuote = (quoteFromCRV + quoteFromCVX) * 999 / 1000;
         uint256 minAmountEURS = ICurveFi(EURS_POOL).calc_token_amount([adjustedQuote, 0], true);
-        
+
         vm.prank(address(strategy.strategist()));
         strategy.harvest(swapDataCRV, swapDataCVX, minAmountEURS);
-        
+
         assertGt(baseRewardPool.balanceOf(address(strategy)), balanceBefore);
     }
 

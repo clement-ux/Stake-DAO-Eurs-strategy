@@ -168,11 +168,7 @@ contract StrategyEursConvex {
         IBaseRewardPool(baseRewardPool).withdrawAllAndUnwrap(false);
     }
 
-    function harvest(
-        bytes calldata swapDataCRV,
-        bytes calldata swapDataCVX,
-        uint256 minAmountEURS
-    ) public {
+    function harvest(bytes calldata swapDataCRV, bytes calldata swapDataCVX, uint256 minAmountEURS) public {
         require(msg.sender == strategist || msg.sender == governance, "!authorized");
         IBaseRewardPool(baseRewardPool).getReward(address(this), true);
 
