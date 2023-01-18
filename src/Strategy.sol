@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-// forge install OpenZeppelin/openzeppelin-contracts@v2.5.1
+import "forge-std/Test.sol";
+
+// forge install OpenZeppelin/openzeppelin-contracts@v4.8.1
 import "openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "openzeppelin/contracts/utils/math/SafeMath.sol";
 import "openzeppelin/contracts/utils/Address.sol";
@@ -166,20 +168,9 @@ contract StrategyEursConvex {
         IBaseRewardPool(baseRewardPool).withdrawAllAndUnwrap(false);
     }
 
-    function swapToEurs(bytes calldata swapDataEURS) internal {
-        uint256 _weth = IERC20(weth).balanceOf(address(this));
-
-        IERC20(weth).safeApprove(LIFI_DIAMOND, 0);
-        IERC20(weth).safeApprove(LIFI_DIAMOND, _weth);
-
-        (bool success,) = LIFI_DIAMOND.call(swapDataEURS);
-        if (!success) revert SWAP_FAILED();
-    }
-
     function harvest(
         bytes calldata swapDataCRV,
         bytes calldata swapDataCVX,
-        bytes calldata swapDataEURS,
         uint256 minAmountEURS
     ) public {
         require(msg.sender == strategist || msg.sender == governance, "!authorized");
@@ -208,13 +199,8 @@ contract StrategyEursConvex {
             if (!success) revert SWAP_FAILED();
         }
 
-        uint256 _weth = IERC20(weth).balanceOf(address(this));
-
-        if (_weth > 0) {
-            swapToEurs(swapDataEURS);
-        }
-
         uint256 _eurs = IERC20(eurs).balanceOf(address(this));
+        console.log("_eurs: ", _eurs);
 
         if (_eurs > 0) {
             IERC20(eurs).safeApprove(curve, 0);
