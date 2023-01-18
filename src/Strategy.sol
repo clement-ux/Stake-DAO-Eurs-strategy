@@ -43,6 +43,8 @@ contract StrategyEursConvex {
 
     address public constant uniswapRouterAddress = address(0xE592427A0AEce92De3Edee1F18E0157C05861564);
 
+    address public constant LIFI_DIAMOND = 0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE;
+
     ISwapRouter public constant uniswapRouter = ISwapRouter(uniswapRouterAddress);
 
     uint256 public keepCRV = 0;
@@ -61,6 +63,8 @@ contract StrategyEursConvex {
     // convex booster
     address public booster;
     address public baseRewardPool;
+
+    error SWAP_FAILED();
 
     event Harvested(uint256 wantEarned, uint256 lifetimeEarned);
 
@@ -162,33 +166,21 @@ contract StrategyEursConvex {
         IBaseRewardPool(baseRewardPool).withdrawAllAndUnwrap(false);
     }
 
-    function swapToEurs(uint256 maxSlippageEURS) internal {
+    function swapToEurs(bytes calldata swapDataEURS) internal {
         uint256 _weth = IERC20(weth).balanceOf(address(this));
 
-        IERC20(weth).safeApprove(uniswapRouterAddress, 0);
-        IERC20(weth).safeApprove(uniswapRouterAddress, _weth);
+        IERC20(weth).safeApprove(LIFI_DIAMOND, 0);
+        IERC20(weth).safeApprove(LIFI_DIAMOND, _weth);
 
-        uint256 amountOut =
-            ISwapRouter(quoter).quoteExactInput(abi.encodePacked(weth, uint24(3000), usdc, uint24(500), eurs), _weth);
-
-        uint256 minAmountOut = amountOut.mul(10000 - maxSlippageEURS).div(10000);
-
-        ISwapRouter.ExactInputParams memory params = ISwapRouter.ExactInputParams(
-            abi.encodePacked(weth, uint24(3000), usdc, uint24(500), eurs),
-            address(this),
-            block.timestamp.add(1800),
-            _weth,
-            minAmountOut
-        );
-
-        uniswapRouter.exactInput(params);
+        (bool success, ) = LIFI_DIAMOND.call(swapDataEURS);
+        if (!success) revert SWAP_FAILED();
     }
 
     function harvest(
-        uint256 maxSlippageCRV,
-        uint256 maxSlippageCVX,
-        uint256 maxSlippageCRVAddLiquidity,
-        uint256 maxSlippageEURS
+        bytes calldata swapDataCRV,
+        bytes calldata swapDataCVX,
+        bytes calldata swapDataEURS,
+        uint256 minAmountEURS
     ) public {
         require(msg.sender == strategist || msg.sender == governance, "!authorized");
         IBaseRewardPool(baseRewardPool).getReward(address(this), true);
@@ -201,41 +193,25 @@ contract StrategyEursConvex {
             IERC20(crv).safeTransfer(voter, _keepCRV);
             _crv = _crv.sub(_keepCRV);
 
-            IERC20(crv).safeApprove(sushiRouter, 0);
-            IERC20(crv).safeApprove(sushiRouter, _crv);
+            IERC20(crv).safeApprove(LIFI_DIAMOND, 0);
+            IERC20(crv).safeApprove(LIFI_DIAMOND, _crv);
 
-            address[] memory path = new address[](2);
-            path[0] = crv;
-            path[1] = weth;
-
-            uint256[] memory _amounts = Sushi(sushiRouter).getAmountsOut(_crv, path);
-            uint256 _minimalAmount = _amounts[1].mul(10000 - maxSlippageCRV).div(10000);
-
-            Sushi(sushiRouter).swapExactTokensForTokens(
-                _crv, _minimalAmount, path, address(this), block.timestamp.add(1800)
-            );
+            (bool success, ) = LIFI_DIAMOND.call(swapDataCRV);
+            if (!success) revert SWAP_FAILED();
         }
 
         if (_cvx > 0) {
-            IERC20(cvx).safeApprove(sushiRouter, 0);
-            IERC20(cvx).safeApprove(sushiRouter, _cvx);
+            IERC20(cvx).safeApprove(LIFI_DIAMOND, 0);
+            IERC20(cvx).safeApprove(LIFI_DIAMOND, _cvx);
 
-            address[] memory path = new address[](2);
-            path[0] = cvx;
-            path[1] = weth;
-
-            uint256[] memory _amounts = Sushi(sushiRouter).getAmountsOut(_cvx, path);
-            uint256 _minimalAmount = _amounts[1].mul(10000 - maxSlippageCVX).div(10000);
-
-            Sushi(sushiRouter).swapExactTokensForTokens(
-                _cvx, _minimalAmount, path, address(this), block.timestamp.add(1800)
-            );
+            (bool success, ) = LIFI_DIAMOND.call(swapDataCVX);
+            if (!success) revert SWAP_FAILED();
         }
 
         uint256 _weth = IERC20(weth).balanceOf(address(this));
 
         if (_weth > 0) {
-            swapToEurs(maxSlippageEURS);
+            swapToEurs(swapDataEURS);
         }
 
         uint256 _eurs = IERC20(eurs).balanceOf(address(this));
@@ -244,10 +220,7 @@ contract StrategyEursConvex {
             IERC20(eurs).safeApprove(curve, 0);
             IERC20(eurs).safeApprove(curve, _eurs);
 
-            uint256 _tokenAmount = ICurveFi(curve).calc_token_amount([_eurs, 0], true);
-            uint256 _minimalAmount = _tokenAmount.mul(10000 - maxSlippageCRVAddLiquidity).div(10000);
-
-            ICurveFi(curve).add_liquidity([_eurs, 0], _minimalAmount);
+            ICurveFi(curve).add_liquidity([_eurs, 0], minAmountEURS);
         }
 
         uint256 _want = IERC20(want).balanceOf(address(this));

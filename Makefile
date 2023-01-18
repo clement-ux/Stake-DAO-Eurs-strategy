@@ -7,4 +7,4 @@ ETHERSCAN_API_KEY==${ETHERSCAN_KEY}
 
 default:; @forge fmt && forge build
 
-test:; @forge test --match-contract StrategyTest -vvv
+test:; @forge test -vvv
