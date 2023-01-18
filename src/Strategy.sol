@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.5.17;
-pragma experimental ABIEncoderV2;
+pragma solidity ^0.8.17;
 
 // forge install OpenZeppelin/openzeppelin-contracts@v2.5.1
 import "openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "openzeppelin/contracts/math/SafeMath.sol";
+import "openzeppelin/contracts/utils/math/SafeMath.sol";
 import "openzeppelin/contracts/utils/Address.sol";
-import "openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "src/interfaces/IBooster.sol";
 import "src/interfaces/IBaseRewardPool.sol";
@@ -75,7 +74,7 @@ contract StrategyEursConvex {
         _;
     }
 
-    constructor(address _controller, address _proxy) public {
+    constructor(address _controller, address _proxy) {
         governance = msg.sender;
         strategist = msg.sender;
         controller = _controller;
@@ -177,7 +176,7 @@ contract StrategyEursConvex {
         ISwapRouter.ExactInputParams memory params = ISwapRouter.ExactInputParams(
             abi.encodePacked(weth, uint24(3000), usdc, uint24(500), eurs),
             address(this),
-            now.add(1800),
+            block.timestamp.add(1800),
             _weth,
             minAmountOut
         );
@@ -212,7 +211,9 @@ contract StrategyEursConvex {
             uint256[] memory _amounts = Sushi(sushiRouter).getAmountsOut(_crv, path);
             uint256 _minimalAmount = _amounts[1].mul(10000 - maxSlippageCRV).div(10000);
 
-            Sushi(sushiRouter).swapExactTokensForTokens(_crv, _minimalAmount, path, address(this), now.add(1800));
+            Sushi(sushiRouter).swapExactTokensForTokens(
+                _crv, _minimalAmount, path, address(this), block.timestamp.add(1800)
+            );
         }
 
         if (_cvx > 0) {
@@ -226,7 +227,9 @@ contract StrategyEursConvex {
             uint256[] memory _amounts = Sushi(sushiRouter).getAmountsOut(_cvx, path);
             uint256 _minimalAmount = _amounts[1].mul(10000 - maxSlippageCVX).div(10000);
 
-            Sushi(sushiRouter).swapExactTokensForTokens(_cvx, _minimalAmount, path, address(this), now.add(1800));
+            Sushi(sushiRouter).swapExactTokensForTokens(
+                _cvx, _minimalAmount, path, address(this), block.timestamp.add(1800)
+            );
         }
 
         uint256 _weth = IERC20(weth).balanceOf(address(this));

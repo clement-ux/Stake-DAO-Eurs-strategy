@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.5.17;
+pragma solidity ^0.8.17;
 
 interface IVoterProxy {
     function withdraw(address _gauge, address _token, uint256 _amount) external returns (uint256);

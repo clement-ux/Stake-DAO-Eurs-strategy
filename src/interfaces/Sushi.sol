@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.5.17;
+pragma solidity ^0.8.17;
 
 interface Sushi {
     function swapExactTokensForTokens(uint256, uint256, address[] calldata, address, uint256) external;
