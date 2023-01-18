@@ -172,7 +172,7 @@ contract StrategyEursConvex {
         IERC20(weth).safeApprove(LIFI_DIAMOND, 0);
         IERC20(weth).safeApprove(LIFI_DIAMOND, _weth);
 
-        (bool success, ) = LIFI_DIAMOND.call(swapDataEURS);
+        (bool success,) = LIFI_DIAMOND.call(swapDataEURS);
         if (!success) revert SWAP_FAILED();
     }
 
@@ -196,7 +196,7 @@ contract StrategyEursConvex {
             IERC20(crv).safeApprove(LIFI_DIAMOND, 0);
             IERC20(crv).safeApprove(LIFI_DIAMOND, _crv);
 
-            (bool success, ) = LIFI_DIAMOND.call(swapDataCRV);
+            (bool success,) = LIFI_DIAMOND.call(swapDataCRV);
             if (!success) revert SWAP_FAILED();
         }
 
@@ -204,7 +204,7 @@ contract StrategyEursConvex {
             IERC20(cvx).safeApprove(LIFI_DIAMOND, 0);
             IERC20(cvx).safeApprove(LIFI_DIAMOND, _cvx);
 
-            (bool success, ) = LIFI_DIAMOND.call(swapDataCVX);
+            (bool success,) = LIFI_DIAMOND.call(swapDataCVX);
             if (!success) revert SWAP_FAILED();
         }
 

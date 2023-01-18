@@ -15,4 +15,12 @@ interface IController {
     function vaults(address) external view returns (address);
 
     function strategies(address) external view returns (address);
+
+    function approveStrategy(address _token, address _strategy) external;
+
+    function revokeStrategy(address _token, address _strategy) external;
+
+    function setStrategy(address _token, address _strategy) external;
+
+    function governance() external view returns (address);
 }
