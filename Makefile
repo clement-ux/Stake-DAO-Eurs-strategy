@@ -7,4 +7,4 @@ ETHERSCAN_API_KEY==${ETHERSCAN_KEY}
 
 default:; @forge fmt && forge build
 
-test:; @forge test -vvv --ffi
+test:; @forge test -vvv --ffi --etherscan-api-key ${ETHERSCAN_KEY}
