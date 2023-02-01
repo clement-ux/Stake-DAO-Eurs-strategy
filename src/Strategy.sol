@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "forge-std/Test.sol";
-
 // forge install OpenZeppelin/openzeppelin-contracts@v4.8.1
 import "openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -194,7 +192,6 @@ contract StrategyEursConvex {
         }
 
         uint256 _eurs = IERC20(eurs).balanceOf(address(this));
-        console.log("_eurs: ", _eurs);
 
         if (_eurs > 0) {
             IERC20(eurs).safeApprove(curve, 0);
